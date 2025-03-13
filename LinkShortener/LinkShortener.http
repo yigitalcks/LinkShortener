@@ -1,0 +1,6 @@
+@LinkShortener_HostAddress = http://localhost:5279
+
+GET {{LinkShortener_HostAddress}}/pizza/
+Accept: application/json
+
+###

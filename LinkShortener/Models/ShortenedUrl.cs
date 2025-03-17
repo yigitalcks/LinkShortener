@@ -1,5 +1,6 @@
 namespace LinkShortener.Models;
 
+using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,6 +15,8 @@ public class ShortenedUrl
     public string Url { get; set; }
     
     [Required]
-    public User User { get; set; }
-    public int UserId { get; set; }
+    public string UserId { get; set; }
+        
+    [ForeignKey("UserId")]
+    public virtual IdentityUser User { get; set; }
 }

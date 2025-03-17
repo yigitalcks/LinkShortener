@@ -35,19 +35,4 @@ public class ShortenedUrlService
         
         return shortenedUrl;
     }
-    // USER --------------------------------------------------------------
-    public async Task<IEnumerable<User>> GetUsersAsync()
-    {
-        return await _context.Users.AsNoTracking()
-            .Take(10)
-            .ToListAsync();
-    }
-
-    public async Task<User?> GetUserAsync(int id)
-    {
-        return await _context.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == id);
-    }
-    
 }

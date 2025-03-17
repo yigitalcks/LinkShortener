@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LinkShortener.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class UrlController: ControllerBase
 {
     private readonly ShortenedUrlService  _service;
@@ -44,25 +44,4 @@ public class UrlController: ControllerBase
         return CreatedAtAction(nameof(GetUrlByKey), new { key = url.Key }, url);
     }
     
-    // USER-----------------------------
-    [HttpGet("users/")]
-    public async Task<ActionResult<IEnumerable<User>>> GetUsers()
-    {
-        var users = await _service.GetUsersAsync();
-        if (users.Any() == false)
-        {
-            return NotFound();
-        }
-        return Ok(users);
-    }
-    [HttpGet("users/{id}")]
-    public async Task<ActionResult<User>> GetUserById(int id)
-    {
-        var user =  await _service.GetUserAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
-        return Ok(user);
-    }
 }

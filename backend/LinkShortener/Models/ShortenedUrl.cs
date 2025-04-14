@@ -21,9 +21,14 @@ public class ShortenedUrl
     public virtual IdentityUser User { get; set; }
 }
 
-public class ShortenedUrlDTO
+public class ShortenedUrlRequestDTO
 {
     [Required]
     [MaxLength(2048)]
     public string Url { get; set; }
+}
+
+public class ShortenedUrlResponseDTO
+{
+    public string Key { get; set; }
 }

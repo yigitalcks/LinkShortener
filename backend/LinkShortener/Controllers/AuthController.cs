@@ -68,13 +68,16 @@ public class AuthController : ControllerBase
     {
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            //new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expires = DateTime.UtcNow.AddHours(24);
+        
+        var expireHours = int.Parse(_configuration["Jwt:ExpireHours"] ?? "24");
+        var expires = DateTime.UtcNow.AddHours(expireHours);
 
         var token = new JwtSecurityToken(
             _configuration["Jwt:Issuer"],

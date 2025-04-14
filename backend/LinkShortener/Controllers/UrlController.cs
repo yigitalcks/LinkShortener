@@ -4,7 +4,7 @@ using LinkShortener.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.JsonWebTokens;
+using Base62;
 
 namespace LinkShortener.Controllers;
 
@@ -21,40 +21,35 @@ public class UrlController: ControllerBase
         _userManager = userManager;
     }
     
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<ShortenedUrl>>> GetUrls()
-    {
-        var urls = await _service.GetUrlsAsync();
-        if (urls.Any() == false)
-        {
-            return NotFound();
-        }
-        return Ok(urls);
-    }
-
-    [HttpGet("{key}")]
-    public async Task<ActionResult<ShortenedUrl>> GetUrlByKey(long key)
+    [HttpGet("detail/{key:long}")]
+    [Authorize]
+    public async Task<ActionResult<ShortenedUrlResponseDTO>> GetUrlByKey(long key)
     {
         var url = await _service.GetUrlAsync(key);
         if (url == null)
         {
             return NotFound();
         }
-        return Ok(url);
+        
+        var keyBase62 = url.Key.ToBase62();
+        var urlDTO = new ShortenedUrlResponseDTO
+        {
+            Key = keyBase62
+        };
+        
+        return Ok(urlDTO);
     }
-
     
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<ShortenedUrl>> SaveUrl([FromBody] ShortenedUrlDTO urlDTO)
+    public async Task<ActionResult<ShortenedUrl>> SaveUrl([FromBody] ShortenedUrlRequestDTO urlDTO)
     {
         try
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             
-            
-            var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized("Kullanıcı doğrulaması başarısız.");
             
@@ -68,10 +63,15 @@ public class UrlController: ControllerBase
                 UserId = userId,
                 User = user
             };
-            
             await _service.SaveUrlAsync(url);
+
+            var keyBase62 = url.Key.ToBase62();
+            var shortenedUrl = new ShortenedUrlResponseDTO
+            {
+                Key = keyBase62
+            };
             
-            return CreatedAtAction(nameof(GetUrlByKey), new { key = url.Key }, url);
+            return CreatedAtAction(nameof(GetUrlByKey), new { key = url.Key }, shortenedUrl);
         }
         catch (Exception ex)
         {

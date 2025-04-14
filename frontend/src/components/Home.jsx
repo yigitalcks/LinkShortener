@@ -30,8 +30,8 @@ const Home = () => {
                   },
                 }
               );
-            
-            setShortUrl(response.data.url);
+            const shortCode = response.data.key
+            setShortUrl(`http://localhost:5161/${shortCode}`);
             setError('');
         } catch (error) {
             setError('URL kısaltma işlemi başarısız oldu.');
@@ -66,7 +66,9 @@ const Home = () => {
           {shortUrl && (
             <div style={{ marginTop: '1rem' }}>
               <h3>Kayıt Başarılı!</h3>
-              <pre>{JSON.stringify(shortUrl, null, 2)}</pre>
+                <a href={shortUrl} target="_blank" rel="noopener noreferrer">
+                    {shortUrl}
+                </a>
             </div>
           )}
           {error && (

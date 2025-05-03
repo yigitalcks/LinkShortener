@@ -11,7 +11,6 @@ public class RedirectController : ControllerBase
 {
     private readonly ShortenedUrlService  _service;
     
-    
     public RedirectController(ShortenedUrlService service)
     {
         _service = service;

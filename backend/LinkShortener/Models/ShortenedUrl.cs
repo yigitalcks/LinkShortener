@@ -14,6 +14,9 @@ public class ShortenedUrl
     [MaxLength(2048)]
     public string Url { get; set; }
     
+    [StringLength(30, MinimumLength = 3, ErrorMessage = "Custom URL must be between 3 and 30 characters")]
+    public string? CustomUrl { get; set; }
+    
     [Required]
     public string UserId { get; set; }
         
@@ -26,6 +29,9 @@ public class ShortenedUrlRequestDTO
     [Required]
     [MaxLength(2048)]
     public string Url { get; set; }
+    
+    [StringLength(30, MinimumLength = 3, ErrorMessage = "Custom URL must be between 3 and 30 characters")]
+    public string? CustomUrl { get; set; }
 }
 
 public class ShortenedUrlResponseDTO

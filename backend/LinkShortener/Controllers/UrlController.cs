@@ -63,6 +63,33 @@ public class UrlController: ControllerBase
                 UserId = userId,
                 User = user
             };
+
+            if (!string.IsNullOrEmpty(url.CustomUrl))
+            {
+                url.CustomUrl = urlDTO.CustomUrl;
+                if (IsBase62(urlDTO.CustomUrl))
+                {
+                    try
+                    {
+                        long customKey = urlDTO.CustomUrl.FromBase62<long>();
+                        
+                        var existingUrl = await _service.GetUrlAsync(customKey);
+                        if (existingUrl != null)
+                        {
+                            return BadRequest("Bu özel URL zaten kullanımda. Lütfen başka bir özel URL seçin.");
+                        }
+                    
+                        // CustomUrl'i Key olarak ayarla
+                        url.Key = customKey;
+                    }
+                    catch (Exception)
+                    {
+                        return BadRequest("Özel URL geçersiz bir formatta.");
+                    }
+                }
+                    
+            }
+            
             await _service.SaveUrlAsync(url);
 
             var keyBase62 = url.Key.ToBase62();
@@ -77,5 +104,16 @@ public class UrlController: ControllerBase
         {
             return StatusCode(500, $"Sunucu hatası: {ex.Message}");
         }
+    }
+
+    public bool IsBase62(string customUrl)
+    {
+        if (customUrl.Length > 8)
+            return false;
+        
+        return customUrl.All(c => 
+            (c >= 'A' && c <= 'Z') || 
+            (c >= 'a' && c <= 'z') || 
+            (c >= '0' && c <= '9'));
     }
 }

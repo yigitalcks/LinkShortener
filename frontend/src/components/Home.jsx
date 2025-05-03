@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
-//import api from '../services/api';
 import { logout, getToken } from '../services/authService';
 
 const Home = () => {
     const [url, setUrl] = useState('');
+    const [customUrl, setCustomUrl] = useState('');
+    const [useCustomUrl, setUseCustomUrl] = useState(false);
     const [shortUrl, setShortUrl] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -20,9 +21,16 @@ const Home = () => {
         }
 
         try {
+            const payload = { url };
+            
+            // Eğer custom URL kullanımı aktifse ve bir değer girilmişse ekle
+            if (useCustomUrl && customUrl.trim() !== '') {
+                payload.customKey = customUrl.trim();
+            }
+            
             const response = await axios.post(
                 'http://localhost:5161/api/Url',
-                { url },  
+                payload,  
                 {
                   headers: {
                     'Content-Type': 'application/json',
@@ -34,7 +42,11 @@ const Home = () => {
             setShortUrl(`http://localhost:5161/${shortCode}`);
             setError('');
         } catch (error) {
-            setError('URL kısaltma işlemi başarısız oldu.');
+            if (error.response && error.response.status === 400) {
+                setError('Bu custom URL zaten kullanılıyor veya geçerli değil.');
+            } else {
+                setError('URL kısaltma işlemi başarısız oldu.');
+            }
         }
     };
 
@@ -44,41 +56,72 @@ const Home = () => {
     };
 
     return (
-        <div style={{ maxWidth: '500px', margin: '2rem auto', padding: '1rem', border: '1px solid #ccc' }}>
-          <h2>URL Kaydet</h2>
-          <button onClick={handleLogout} style={{ marginBottom: '1rem' }}>Çıkış Yap</button>
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="url">URL:</label>
-              <input
-                type="text"
-                id="url"
-                name="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://www.ornek.com"
-                style={{ width: '100%', padding: '0.5rem', marginTop: '0.5rem' }}
-                required
-              />
+        <div className="auth-container">
+          <div className="auth-card">
+            <div className="header-with-button">
+              <h2>URL Kaydet</h2>
+              <button onClick={handleLogout} className="secondary-button">Çıkış Yap</button>
             </div>
-            <button type="submit" style={{ padding: '0.5rem 1rem' }}>Kaydet</button>
-          </form>
-          {shortUrl && (
-            <div style={{ marginTop: '1rem' }}>
-              <h3>Kayıt Başarılı!</h3>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="url">URL:</label>
+                <input
+                  type="text"
+                  id="url"
+                  name="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://www.ornek.com"
+                  required
+                />
+              </div>
+              
+              <div className="form-group checkbox-group">
+                <input
+                  type="checkbox"
+                  id="useCustomUrl"
+                  checked={useCustomUrl}
+                  onChange={() => setUseCustomUrl(!useCustomUrl)}
+                />
+                <label htmlFor="useCustomUrl">Özel URL kullan</label>
+              </div>
+              
+              {useCustomUrl && (
+                <div className="form-group">
+                  <label htmlFor="customUrl">Özel URL:</label>
+                  <div className="custom-url-input">
+                    <span className="custom-url-prefix">http://localhost:5161/</span>
+                    <input
+                      type="text"
+                      id="customUrl"
+                      name="customUrl"
+                      value={customUrl}
+                      onChange={(e) => setCustomUrl(e.target.value)}
+                      placeholder="ozel-url"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              <button type="submit" className="primary-button">Kaydet</button>
+            </form>
+            {shortUrl && (
+              <div className="success-message">
+                <h3>Kayıt Başarılı!</h3>
                 <a href={shortUrl} target="_blank" rel="noopener noreferrer">
-                    {shortUrl}
+                  {shortUrl}
                 </a>
-            </div>
-          )}
-          {error && (
-            <div style={{ marginTop: '1rem', color: 'red' }}>
-              <h3>Hata:</h3>
-              <p>{error}</p>
-            </div>
-          )}
+              </div>
+            )}
+            {error && (
+              <div className="error-message">
+                <h3>Hata:</h3>
+                <p>{error}</p>
+              </div>
+            )}
+          </div>
         </div>
-      );
+    );
 };
 
 export default Home;

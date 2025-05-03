@@ -1,28 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { login } from '../services/authService';
+import { register } from '../services/authService';
 
-const Login = () => {
+const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
+        
+        if (password !== confirmPassword) {
+            setError('Şifreler eşleşmiyor.');
+            return;
+        }
+        
         try {
-            await login(email, password);
-            navigate('/url');
+            await register(email, password);
+            navigate('/login');
         } catch (error) {
-            setError('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
+            setError('Kayıt işlemi başarısız oldu. Lütfen bilgilerinizi kontrol edin.');
         }
     };
 
     return (
         <div className="auth-container">
           <div className="auth-card">
-            <h2>Giriş Yap</h2>
-            <form onSubmit={handleLogin}>
+            <h2>Hesap Oluştur</h2>
+            <form onSubmit={handleRegister}>
               <div className="form-group">
                 <label htmlFor="email">Email:</label>
                 <input
@@ -47,7 +54,19 @@ const Login = () => {
                   required
                 />
               </div>
-              <button type="submit" className="primary-button">Giriş Yap</button>
+              <div className="form-group">
+                <label htmlFor="confirmPassword">Şifre Tekrar:</label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Şifrenizi tekrar giriniz"
+                  required
+                />
+              </div>
+              <button type="submit" className="primary-button">Kayıt Ol</button>
             </form>
             {error && (
               <div className="error-message">
@@ -56,9 +75,9 @@ const Login = () => {
             )}
             <div className="auth-link">
               <p>
-                Hesabınız yok mu?{' '}
-                <a href="/register" onClick={(e) => { e.preventDefault(); navigate('/register'); }}>
-                  Kayıt Olun
+                Zaten hesabınız var mı?{' '}
+                <a href="/login" onClick={(e) => { e.preventDefault(); navigate('/login'); }}>
+                  Giriş Yapın
                 </a>
               </p>
             </div>
@@ -67,4 +86,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default Register;

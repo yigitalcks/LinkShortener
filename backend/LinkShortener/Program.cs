@@ -28,7 +28,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContextPool<ApplicationDbContext>(opt => 
     opt.UseNpgsql(builder.Configuration.GetConnectionString("ApplicationDbContext")));
 
-builder.Services.AddScoped<ShortenedUrlService>();
+builder.Services.AddScoped<IShortenedUrlService ,ShortenedUrlService>();
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()

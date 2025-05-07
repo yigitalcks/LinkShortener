@@ -18,7 +18,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
 
         modelBuilder.Entity<ShortenedUrl>()
             .Property(u => u.Key)
-            .UseIdentityAlwaysColumn();
+            .UseIdentityByDefaultColumn();
 
         modelBuilder.Entity<ShortenedUrl>()
             .HasOne<IdentityUser>(s => s.User)
@@ -26,5 +26,8 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
             .HasForeignKey(s => s.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<ShortenedUrl>()
+            .HasIndex(u => u.UserId);
     }
 }

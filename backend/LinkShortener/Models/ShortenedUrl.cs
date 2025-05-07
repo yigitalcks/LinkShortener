@@ -8,7 +8,7 @@ public class ShortenedUrl
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public long Key { get; private set; }
+    public long Key { get; set; }
     
     [Required]
     [MaxLength(2048)]
@@ -26,6 +26,9 @@ public class ShortenedUrlRequestDTO
     [Required]
     [MaxLength(2048)]
     public string Url { get; set; }
+    
+    [StringLength(15, MinimumLength = 3, ErrorMessage = "Custom URL must be between 3 and 15 characters")]
+    public string? CustomKey { get; set; }
 }
 
 public class ShortenedUrlResponseDTO

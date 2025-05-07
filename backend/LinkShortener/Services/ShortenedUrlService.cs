@@ -1,11 +1,15 @@
+using System.Text;
 using LinkShortener.Data;
 using Microsoft.EntityFrameworkCore;
+using Base62;
+using LinkShortener.Utilities;
+using Standart.Hash.xxHash;
 
 namespace LinkShortener.Services;
 
 using LinkShortener.Models;
 
-public class ShortenedUrlService
+public class ShortenedUrlService : IShortenedUrlService
 {
     private readonly ApplicationDbContext _context;
 
@@ -13,19 +17,41 @@ public class ShortenedUrlService
     {
         _context = context;
     }
-    
-    /////////////////////TEST AMAÇLI//////////////////////////////
-    public async Task<IEnumerable<ShortenedUrl>> GetUrlsAsync()
-    {
-        return await _context.ShortenedUrls.AsNoTracking().Take(10).ToListAsync();
-    }
-    ///////////////////////////////////////////////////
 
     public async Task<ShortenedUrl?> GetUrlAsync(long key)
     {
         return await _context.ShortenedUrls
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Key == key);
+    }
+    
+    public async Task<ShortenedUrl?> GetUrlAsync(ulong key)
+    {
+        return await _context.ShortenedUrls
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => (ulong)u.Key == key);
+    }
+    
+    public async Task<ShortenedUrl?> GetUrlAsync(string key, bool isExtended = false)
+    {
+        long? keyLong;
+        if (isExtended)
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(key);
+            var hashedKey = await xxHash64.ComputeHashAsync(new MemoryStream(bytes));
+            hashedKey = hashedKey & 0x7FFFFFFFFFFFFFFF;
+            hashedKey = hashedKey + Base62Validator.Pow62_8;
+            
+            keyLong = (long)hashedKey;
+        }
+        else
+        {
+            keyLong = key.FromBase62();
+        }
+        
+        return await _context.ShortenedUrls
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Key == keyLong);
     }
 
     public async Task<ShortenedUrl?> SaveUrlAsync(ShortenedUrl shortenedUrl)
@@ -35,5 +61,4 @@ public class ShortenedUrlService
         
         return shortenedUrl;
     }
-    
 }

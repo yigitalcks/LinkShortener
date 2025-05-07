@@ -25,7 +25,22 @@ const Home = () => {
             
             // Eğer custom URL kullanımı aktifse ve bir değer girilmişse ekle
             if (useCustomUrl && customUrl.trim() !== '') {
-                payload.customKey = customUrl.trim();
+                const trimmedCustomUrl = customUrl.trim();
+
+                // Regex kontrolü
+                const regex = /^[A-Za-z0-9_-]+$/;
+                if (!regex.test(trimmedCustomUrl)) {
+                    setError('Özel URL yalnızca harf, rakam, alt çizgi (_) ve kısa çizgi (-) içerebilir.');
+                    return;
+                }
+
+                // Uzunluk kontrolü
+                if (trimmedCustomUrl.length < 3 || trimmedCustomUrl.length > 15) {
+                    setError('Özel URL en az 3, en fazla 15 karakterden oluşmalıdır.');
+                    return;
+                }
+
+                payload.customKey = trimmedCustomUrl;
             }
             
             const response = await axios.post(

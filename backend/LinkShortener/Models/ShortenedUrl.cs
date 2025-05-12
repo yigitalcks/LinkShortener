@@ -10,6 +10,9 @@ public class ShortenedUrl
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Key { get; set; }
     
+    [StringLength(16)]
+    public string? ShortUrl { get; set; }
+    
     [Required]
     [MaxLength(2048)]
     public string Url { get; set; }
@@ -19,6 +22,9 @@ public class ShortenedUrl
         
     [ForeignKey("UserId")]
     public virtual IdentityUser User { get; set; }
+    
+    [Required]
+    public DateTime CreatedAt { get; private set; }
 }
 
 public class ShortenedUrlRequestDTO
@@ -27,11 +33,12 @@ public class ShortenedUrlRequestDTO
     [MaxLength(2048)]
     public string Url { get; set; }
     
-    [StringLength(15, MinimumLength = 3, ErrorMessage = "Custom URL must be between 3 and 15 characters")]
+    [StringLength(16, MinimumLength = 3, ErrorMessage = "Custom URL must be between 3 and 16 characters")]
     public string? CustomKey { get; set; }
 }
 
 public class ShortenedUrlResponseDTO
 {
     public string Key { get; set; }
+    public DateTime CreatedAt { get; set; }
 }

@@ -53,12 +53,32 @@ public class ShortenedUrlService : IShortenedUrlService
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Key == keyLong);
     }
-
+    
     public async Task<ShortenedUrl?> SaveUrlAsync(ShortenedUrl shortenedUrl)
     {
         await _context.ShortenedUrls.AddAsync(shortenedUrl);
         await _context.SaveChangesAsync();
         
         return shortenedUrl;
+    }
+
+    public async Task<bool> UpdateUrlAsync(ShortenedUrl shortenedUrl)
+    {
+        _context.ShortenedUrls.Update(shortenedUrl);
+        return await (_context.SaveChangesAsync()) > 0;
+    }
+    public async Task<List<ShortenedUrlResponseDTO>> GetLast10EntriesAsync(string userId)
+    {
+        return await _context.ShortenedUrls
+            .AsNoTracking()
+            .Where(u => u.UserId == userId)
+            .OrderByDescending(u => u.CreatedAt)
+            .Take(10)
+            .Select(u => new ShortenedUrlResponseDTO
+            {
+                Key = u.ShortUrl,
+                CreatedAt = u.CreatedAt
+            })
+            .ToListAsync();
     }
 }

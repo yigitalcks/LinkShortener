@@ -21,6 +21,10 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
             .UseIdentityByDefaultColumn();
 
         modelBuilder.Entity<ShortenedUrl>()
+            .Property(u => u.CreatedAt)
+            .HasDefaultValueSql("now()");
+
+        modelBuilder.Entity<ShortenedUrl>()
             .HasOne<IdentityUser>(s => s.User)
             .WithMany()
             .HasForeignKey(s => s.UserId)
@@ -29,5 +33,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
         
         modelBuilder.Entity<ShortenedUrl>()
             .HasIndex(u => u.UserId);
+        modelBuilder.Entity<ShortenedUrl>()
+            .HasIndex(u => u.CreatedAt);
     }
 }

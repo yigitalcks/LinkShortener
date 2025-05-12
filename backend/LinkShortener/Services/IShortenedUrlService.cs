@@ -9,4 +9,6 @@ public interface IShortenedUrlService
     Task<ShortenedUrl?> GetUrlAsync(string key, bool isExtended = false);
     
     Task<ShortenedUrl?> SaveUrlAsync(ShortenedUrl shortenedUrl);
+    Task<bool> UpdateUrlAsync(ShortenedUrl shortenedUrl);
+    Task<List<ShortenedUrlResponseDTO>> GetLast10EntriesAsync(string userId);
 }

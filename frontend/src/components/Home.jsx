@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
 import { logout, getToken } from '../services/authService';
+import LinkHistoryPanel from './LinkHistoryPanel';
 
 const Home = () => {
     const [url, setUrl] = useState('');
@@ -134,6 +135,9 @@ const Home = () => {
                 <p>{error}</p>
               </div>
             )}
+            
+            {/* Link History Panel */}
+            <LinkHistoryPanel />
           </div>
         </div>
     );

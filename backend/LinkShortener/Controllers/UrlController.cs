@@ -36,6 +36,35 @@ public class UrlController: ControllerBase
         
         return Ok(url);
     }
+
+    [HttpGet("history")]
+    [Authorize]
+    public async Task<ActionResult<List<ShortenedUrlResponseDTO>>> GetUrlHistory()
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized("Kullanıcı doğrulaması başarısız.");
+            
+            var user = await _userManager.FindByIdAsync(userId);
+            if(user == null)
+                return Unauthorized("Kullanıcı bulunamadı.");
+            
+            var entries = await _service.GetLast10EntriesAsync(userId);
+
+            if (!entries.Any())
+            {
+                return Ok(new List<ShortenedUrlResponseDTO>());
+            }
+
+            return Ok(entries);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Sunucu hatası: {ex.Message}");
+        }
+    }
     
     [HttpPost]
     [Authorize]
@@ -58,22 +87,18 @@ public class UrlController: ControllerBase
             bool isBase62 = true;
             if (!string.IsNullOrEmpty(urlDTO.CustomKey))
             {
-                Console.WriteLine(urlDTO.CustomKey);
                 isBase62 = Base62Validator.IsValidBase62(urlDTO.CustomKey);
                 if (isBase62)
                 {
-                    Console.WriteLine(urlDTO.CustomKey);
                     var isExist = await _service.GetUrlAsync(urlDTO.CustomKey);
                     if (isExist != null)
                     {
                         return Conflict("Bu Custom URL zaten kullanılıyor.");
                     }
-                    //key = urlDTO.CustomKey.FromBase62<long>();
                     key = urlDTO.CustomKey.FromBase62();
                 }
                 else
                 {
-                    Console.WriteLine(urlDTO.CustomKey);
                     byte[] bytes = Encoding.UTF8.GetBytes(urlDTO.CustomKey);
                     var hashedKey = await xxHash64.ComputeHashAsync(new MemoryStream(bytes));
                     hashedKey = hashedKey & 0x7FFFFFFFFFFFFFFF;
@@ -95,21 +120,22 @@ public class UrlController: ControllerBase
                 UserId = userId,
                 User = user
             };
-
             if (key.HasValue)
             {
                 url.Key = key.Value;
             }
-            System.Console.WriteLine(url);
-            await _service.SaveUrlAsync(url);
-
             
-                
+            await _service.SaveUrlAsync(url);
+            
             var keyBase62 = isBase62 ? url.Key.ToBase62(): urlDTO.CustomKey;
-            Console.WriteLine(keyBase62);
+            url.ShortUrl = keyBase62;
+
+            await _service.UpdateUrlAsync(url);
+            
             var shortenedUrl = new ShortenedUrlResponseDTO
             {
-                Key = keyBase62
+                Key = url.ShortUrl,
+                CreatedAt = url.CreatedAt
             };
             
             return CreatedAtAction(nameof(GetUrlByKey), new { key = url.Key }, shortenedUrl);

@@ -88,12 +88,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// CORS middleware'ini Authentication ve Authorization'dan ÖNCE çağırın.
+app.UseCors("AllowAllOrigins");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-// app.UseHttpsRedirection(); // Remove or conditionally disable for Render
-
-app.UseCors("AllowAllOrigins");
+// app.UseHttpsRedirection(); // Yorum satırı, bu doğru
 
 app.MapControllers();
 

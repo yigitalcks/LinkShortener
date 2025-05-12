@@ -63,13 +63,22 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// Apply EF Core migrations on startup
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-
-    var context = services.GetRequiredService<ApplicationDbContext>();
-    context.Database.EnsureCreated();
-    // DbInitializer.Initialize(context);
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        context.Database.Migrate(); // Use Migrate instead of EnsureCreated
+        // DbInitializer.Initialize(context); // Optional: Seed data if needed
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+        // Consider stopping the application or handling the error appropriately
+    }
 }
 
 // Configure the HTTP request pipeline.
@@ -82,7 +91,7 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Remove or conditionally disable for Render
 
 app.UseCors("AllowAllOrigins");
 

@@ -1,0 +1,27 @@
+# Git files
+.git
+.gitignore
+
+# Rider/VS specific
+.idea
+*.sln
+*.DotSettings.user
+
+# Build artifacts
+**/bin
+**/obj
+
+# User-specific files
+*.user
+*.suo
+
+# Secrets (should be managed via environment variables)
+appsettings.*.json
+!appsettings.json 
+# The line above ensures appsettings.json IS included, but appsettings.Development.json etc. are NOT.
+# If you want to exclude all appsettings, remove the !appsettings.json line.
+
+# Other
+**/Properties/launchSettings.json
+compose.yaml
+global.json 

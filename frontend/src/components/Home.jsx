@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import axios from 'axios';
 import { logout, getToken } from '../services/authService';
+import { createShortLink, BASE_API_URL } from '../services/linkService';
 import LinkHistoryPanel from './LinkHistoryPanel';
 
 const Home = () => {
@@ -22,47 +22,32 @@ const Home = () => {
         }
 
         try {
-            const payload = { url };
+            const payloadUrl = url;
+            let payloadCustomKey = null;
             
-            // Eğer custom URL kullanımı aktifse ve bir değer girilmişse ekle
             if (useCustomUrl && customUrl.trim() !== '') {
                 const trimmedCustomUrl = customUrl.trim();
-
-                // Regex kontrolü
                 const regex = /^[A-Za-z0-9_-]+$/;
                 if (!regex.test(trimmedCustomUrl)) {
                     setError('Özel URL yalnızca harf, rakam, alt çizgi (_) ve kısa çizgi (-) içerebilir.');
                     return;
                 }
-
-                // Uzunluk kontrolü
                 if (trimmedCustomUrl.length < 3 || trimmedCustomUrl.length > 15) {
                     setError('Özel URL en az 3, en fazla 15 karakterden oluşmalıdır.');
                     return;
                 }
-
-                payload.customKey = trimmedCustomUrl;
+                payloadCustomKey = trimmedCustomUrl;
             }
             
-            const response = await axios.post(
-                'http://localhost:5161/api/Url',
-                payload,  
-                {
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                  },
-                }
-              );
-            const shortCode = response.data.key
-            setShortUrl(`http://localhost:5161/${shortCode}`);
+            const shortCode = await createShortLink(payloadUrl, payloadCustomKey);
+
+            setShortUrl(`${BASE_API_URL}/${shortCode}`);
             setError('');
         } catch (error) {
-            if (error.response && error.response.status === 400) {
-                setError('Bu custom URL zaten kullanılıyor veya geçerli değil.');
-            } else {
-                setError('URL kısaltma işlemi başarısız oldu.');
-            }
+            setError('URL kısaltma işlemi başarısız oldu. Lütfen tekrar deneyin.');
+            console.error('Kısaltma hatası:', error);
+            
+            setShortUrl('');
         }
     };
 
@@ -106,7 +91,7 @@ const Home = () => {
                 <div className="form-group">
                   <label htmlFor="customUrl">Özel URL:</label>
                   <div className="custom-url-input">
-                    <span className="custom-url-prefix">http://localhost:5161/</span>
+                    <span className="custom-url-prefix">{`${BASE_API_URL}/`}</span>
                     <input
                       type="text"
                       id="customUrl"

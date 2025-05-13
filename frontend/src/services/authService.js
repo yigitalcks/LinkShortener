@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const API_URL = process.env.VITE_API_URL || 'http://localhost:5161/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5161/api';
 
 
 export const login = async (email, password) => {
     try {
-        const response = await axios.post(`${API_URL}/Auth/login`, {
+        const response = await axios.post(`${API_URL}/api/Auth/login`, {
             email,
             password
         });
@@ -19,7 +19,7 @@ export const login = async (email, password) => {
 
 export const register = async (email, password) => {
     try {
-        const response = await axios.post(`${API_URL}/Auth/register`, {
+        const response = await axios.post(`${API_URL}/api/Auth/register`, {
             email,
             password
         });

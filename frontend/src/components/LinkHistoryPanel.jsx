@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getUserLastLinks } from '../services/linkService';
+import { getUserLastLinks, BASE_API_URL } from '../services/linkService';
 import { convertUtcToLocalFormattedString } from '../utils/dateUtils';
 import '../styles/LinkHistoryPanel.css';
 
@@ -60,11 +60,11 @@ const LinkHistoryPanel = () => {
                     <div className="link-short">
                       <span className="short-label">Kısa Link:</span>
                       <a 
-                        href={`http://localhost:5161/${link.key}`} 
+                        href={`${BASE_API_URL}/${link.key}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                       >
-                        {`http://localhost:5161/${link.key}`}
+                        {`${BASE_API_URL}/${link.key}`}
                       </a>
                     </div>
                     <div className="link-date">

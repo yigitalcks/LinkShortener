@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.VITE_API_URL || 'http://localhost:5161/api';
+const API_URL = process.env.VITE_API_URL || 'https://linkshortener-w5xi.onrender.com';
 
 export const login = async (email, password) => {
     const response = await axios.post(`${API_URL}/api/Auth/login`, {

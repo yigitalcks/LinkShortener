@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getToken } from './authService';
 
-export const BASE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5161';
+export const BASE_API_URL = process.env.VITE_API_URL || 'http://localhost:5161';
 
 export const getUserLastLinks = async () => {
   try {

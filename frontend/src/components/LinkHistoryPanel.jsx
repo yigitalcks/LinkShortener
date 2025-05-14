@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { getUserLastLinks, BASE_API_URL } from '../services/linkService';
 import { convertUtcToLocalFormattedString } from '../utils/dateUtils';
 import '../styles/LinkHistoryPanel.css';
@@ -82,4 +82,4 @@ const LinkHistoryPanel = () => {
   );
 };
 
-export default LinkHistoryPanel; 
+export default LinkHistoryPanel;

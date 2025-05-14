@@ -14,9 +14,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins", builder =>
     {
-        builder.AllowAnyOrigin()  // Herhangi bir kaynaktan erişime izin ver
-            .AllowAnyMethod()  // Tüm HTTP metodlarına izin ver
-            .AllowAnyHeader(); // Herhangi bir başlığa izin ver
+        builder.WithOrigins("https://linkshortenerweb.onrender.com")
+            .AllowAnyMethod()  
+            .AllowAnyHeader(); 
     });
 });
 
@@ -42,7 +42,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false;
+    options.RequireHttpsMetadata = true;
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {   
@@ -70,14 +70,12 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        context.Database.Migrate(); // Use Migrate instead of EnsureCreated
-        // DbInitializer.Initialize(context); // Optional: Seed data if needed
+        context.Database.Migrate();
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while migrating the database.");
-        // Consider stopping the application or handling the error appropriately
     }
 }
 
@@ -88,13 +86,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// CORS middleware'ini Authentication ve Authorization'dan ÖNCE çağırın.
 app.UseCors("AllowAllOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// app.UseHttpsRedirection(); // Yorum satırı, bu doğru
+app.UseHttpsRedirection();
 
 app.MapControllers();
 

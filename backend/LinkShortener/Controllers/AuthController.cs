@@ -78,7 +78,7 @@ public class AuthController : ControllerBase
         
         var expireHours = int.Parse(_configuration["Jwt:ExpireHours"] ?? "24");
         var expires = DateTime.UtcNow.AddHours(expireHours);
-
+        
         var token = new JwtSecurityToken(
             _configuration["Jwt:Issuer"],
             _configuration["Jwt:Audience"],
